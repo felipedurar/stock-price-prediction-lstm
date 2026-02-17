@@ -11,13 +11,16 @@ dependencies = [
     "fastapi (>=0.129.0,<0.130.0)",
     "uvicorn (>=0.41.0,<0.42.0)",
     "sqlalchemy (>=2.0.46,<3.0.0)",
-    "aiosqlite (>=0.22.1,<0.23.0)"
+    "aiosqlite (>=0.22.1,<0.23.0)",
+    "yfinance (>=1.2.0,<2.0.0)",
+    "pandas (>=3.0.0,<4.0.0)",
+    "numpy (>=2.4.2,<3.0.0)",
+    "apscheduler (>=3.11.2,<4.0.0)",
+    "structlog (>=25.5.0,<26.0.0)",
+    "sqlmodel (>=0.0.34,<0.0.35)"
 ]
-
+packages    = [{ include = "api" }]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry]
-package-mode = false
