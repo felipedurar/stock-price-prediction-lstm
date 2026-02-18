@@ -1,23 +1,57 @@
 # Stock Price Prediction using LSTM
-This is a project that predicts the closing price value of a specific Stock
+Predict the next closing price of a stock using a Long Short-Term Memory (LSTM) neural network and serve the model through a FastAPI REST API with model versioning.
 
-## What is it?
-This project if a Python application that uses Long Short-Term Memory Neural Networks that is a type of RNN (Recurring Neural Network) usefull for time series (that is this case), and this is used in this project to predict Stock Prices.
+This project was developed as part of the FIAP Postgraduate – Tech Challenge (Phase 4).
 
-This is a project from the FIAP Postgraduate course (Tech Challenge Fase 4).
+## Overview
+This application implements an end-to-end machine learning pipeline:
+- Data ingestion
+- Model training
+- Model versioning
+- Inference API
 
-## How to run it?
-First you should install the dependencies:
+## Workflow
+Workflow for generating new predictions using the Inference API:
+![Stock Price Workflow](workflow.drawio.png)
+
+## Tech Stack
+- FastAPI
+- PyTorch
+- SQLModel / SQLite
+- Poetry
+- Docker & Docker Compose
+- yfinance, pandas, numpy, scikit-learn
+
+## How to Run
+1. Install dependencies (Poetry)
 ```
 poetry install
+poetry run uvicorn api.main:app --reload
 ```
-Then run the command bellow:
+API will be available at:
 ```
-poetry run uvicorn app.main:app --reload
-```
-
-### Or run using docker-compose:
-```
-docker-compose up
+http://localhost:8000/api/v1/docs
 ```
 
+2. Run with Docker
+```
+docker-compose up --build
+```
+
+## Model Details
+- Architecture: LSTM → Linear
+- Input: last lookback closing prices
+- Output: next closing price (horizon = 1)
+- Scaling: MinMaxScaler (fit on training set only)
+- Loss: MSE
+- Evaluation metrics:
+    - MAE
+    - RMSE
+    - MAPE
+
+## Author
+- Felipe Malaquias Durar
+- Everton Vieira Rodrigues
+
+## License
+Educational project for FIAP Tech Challenge.
