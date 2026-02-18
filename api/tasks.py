@@ -5,4 +5,3 @@ def perform_initial_reconciliation():
     print("Performing Initial Reconciliation...")
     ingest_stock_data("AAPL")
     print("Finished Performing Stock Data Ingestion")
-

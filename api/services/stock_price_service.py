@@ -8,6 +8,8 @@ from sqlalchemy import func
 from api.db import get_session
 from api.models.stock_price import StockPrice
 
+import numpy as np
+
 class StockPriceService:
     def __init__(self, session: Session):
         self.session = session
@@ -29,6 +31,20 @@ class StockPriceService:
         )
         self.session.exec(stmt)
         self.session.commit()
+    
+    def get_closes_from_db(self, ticker: str) -> np.ndarray:
+        stmt = (
+            select(StockPrice.close)
+            .where(StockPrice.ticker == ticker)
+            .order_by(StockPrice.date.asc())
+        )
+
+        rows = self.session.exec(stmt).all()
+
+        # Se vier como tupla: [(127.43,), (126.33,), ...]
+        closes = [float(r) if not isinstance(r, tuple) else float(r[0]) for r in rows]
+
+        return np.array(closes, dtype=np.float32)
         
-def get_stock_price_service(session: Session = Depends(get_session)) -> StockPrice:
+def get_stock_price_service(session: Session = Depends(get_session)) -> StockPriceService:
     return StockPriceService(session)

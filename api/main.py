@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import structlog
 
 from api.db import init_db, engine
-from api.routers import data
+from api.routers import data, model
 from api.tasks import perform_initial_reconciliation
 
 scheduler = AsyncIOScheduler(timezone="UTC")
@@ -20,7 +20,6 @@ def setup_database():
 
     # Create tables
     init_db()
-
 
 def setup_scheduler():
     print("Setting Up Scheduler...")
@@ -67,6 +66,7 @@ app.add_middleware(
 )
 
 app.include_router(data.router, prefix="/api/v1/data", tags=["Data"])
+app.include_router(model.router, prefix="/api/v1/model", tags=["Model", "ML"])
 
 # --- Healthcheck ---
 @app.get("/api/v1/health", tags=["Health"], status_code=200)
