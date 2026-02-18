@@ -20,7 +20,7 @@ Workflow for generating new predictions using the Inference API:
 - SQLModel / SQLite
 - Poetry
 - Docker & Docker Compose
-- yfinance, pandas, numpy, scikit-learn
+- yfinance, pandas, numpy
 
 ## How to Run
 1. Install dependencies (Poetry)
