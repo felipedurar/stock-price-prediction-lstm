@@ -1,0 +1,10 @@
+groups:
+  - name: model-alerts
+    rules:
+      - alert: HighInferenceLatency
+        expr: histogram_quantile(0.95, rate(model_inference_seconds_bucket[5m])) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High model inference latency"

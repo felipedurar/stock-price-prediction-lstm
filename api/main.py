@@ -4,7 +4,7 @@ import time
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 import structlog
 
@@ -12,6 +12,14 @@ from api.db import init_db, engine
 from api.logging_config import setup_logging
 from api.routers import data, model, predict
 from api.tasks import perform_initial_reconciliation
+
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+
+from api.monitoring.prometheus import (
+    API_REQUEST_COUNT,
+    API_REQUEST_LATENCY
+)
+
 
 scheduler = AsyncIOScheduler(timezone="UTC")
 logger = structlog.get_logger()
@@ -77,6 +85,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def prometheus_middleware(request: Request, call_next):
+    start_time = time.time()
+
+    response = await call_next(request)
+
+    duration = time.time() - start_time
+    API_REQUEST_COUNT.inc()
+    API_REQUEST_LATENCY.observe(duration)
+
+    return response
+
 app.include_router(data.router, prefix="/api/v1/data", tags=["Data"])
 app.include_router(model.router, prefix="/api/v1/model", tags=["Model"])
 app.include_router(predict.router, prefix="/api/v1/predict", tags=["Predict"])
@@ -85,3 +105,7 @@ app.include_router(predict.router, prefix="/api/v1/predict", tags=["Predict"])
 @app.get("/api/v1/health", tags=["Health"], status_code=200)
 async def health():
     return {"status": "ok"}
+
+@app.get("/metrics")
+def metrics():
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
