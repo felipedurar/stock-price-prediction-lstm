@@ -24,14 +24,24 @@ def setup_database():
 
 def setup_scheduler():
     print("Setting Up Scheduler...")
-    # scheduler.add_job(
-    #     perform_initial_reconciliation,
-    #     trigger="date",
-    #     run_date=datetime.now(timezone.utc) + timedelta(seconds=10),
-    #     id="initial_reconciliation",
-    #     replace_existing=True,
-    #     misfire_grace_time=300,
-    # )
+    # Startup Update
+    scheduler.add_job(
+        perform_initial_reconciliation,
+        trigger="date",
+        run_date=datetime.now(timezone.utc) + timedelta(seconds=10),
+        id="initial_reconciliation",
+        replace_existing=True,
+        misfire_grace_time=300,
+    )
+    
+    # Daily Update
+    scheduler.add_job(
+        perform_initial_reconciliation,
+        trigger=CronTrigger(hour=1, minute=0),
+        id="daily_reconciliation",
+        replace_existing=True,
+        misfire_grace_time=300,
+    )
 
     scheduler.start()
 
