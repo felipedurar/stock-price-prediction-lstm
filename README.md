@@ -7,7 +7,17 @@ This project if a Python application that uses Long Short-Term Memory Neural Net
 This is a project from the FIAP Postgraduate course (Tech Challenge Fase 4).
 
 ## How to run it?
+First you should install the dependencies:
+```
+poetry install
+```
+Then run the command bellow:
 ```
 poetry run uvicorn app.main:app --reload
+```
+
+### Or run using docker-compose:
+```
+docker-compose up
 ```
 

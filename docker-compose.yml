@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: stock-price-prediction-lstm
+    ports:
+      - "8000:8000"
+    volumes:
+      - stock_price_prediction_lstm:/app:cached
+      - /etc/localtime:/etc/localtime:ro
+    command: poetry run uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  stock_price_prediction_lstm:
