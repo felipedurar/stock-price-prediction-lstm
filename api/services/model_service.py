@@ -1,4 +1,4 @@
-
+import os, json, joblib, torch
 from fastapi import Depends
 
 from sqlmodel import Session, select, and_, func
@@ -9,8 +9,11 @@ from api.db import get_session
 from api.ml.inference.predictor import inverse_y, predict_and_inverse
 from api.ml.metrics.regression import mae, mape, rmse
 from api.ml.preprocessing.scalling import prepare_data
+from api.ml.registry.builders import build_model_from_metadata
+from api.ml.registry.schemas import ModelMetadata
 from api.ml.training.trainer import train_model
 from api.models.stock_price import StockPrice
+from datetime import datetime, timezone
 
 import numpy as np
 
@@ -18,7 +21,7 @@ class ModelService:
     def __init__(self, session: Session):
         self.session = session
         
-    def run_training_example(self, closes: np.ndarray, lookback=60):
+    def run_training(self, closes: np.ndarray, lookback=60):
         X_train, y_train, X_val, y_val, scaler = prepare_data(closes, lookback=lookback, train_ratio=0.8)
 
         model, best_val_loss = train_model(
@@ -38,6 +41,7 @@ class ModelService:
         }
 
         print("Metrics:", metrics)
+        
         return model, scaler, metrics
     
     def predict_next_close(self, model, scaler, last_closes: np.ndarray, lookback: int):
@@ -52,6 +56,41 @@ class ModelService:
 
         pred = predict_and_inverse(model, X, scaler)  # (1,1)
         return float(pred[0, 0])
+    
+    def load_model_bundle(self, model_dir: str):
+        # Metadata
+        with open(os.path.join(model_dir, "metadata.json"), "r") as f:
+            meta_dict = json.load(f)
+
+        meta = ModelMetadata.model_validate(meta_dict)
+
+        # Scaler
+        scaler = joblib.load(os.path.join(model_dir, "scaler.pkl"))
+
+        # Model
+        model = build_model_from_metadata(meta)
+        state = torch.load(os.path.join(model_dir, "weights.pt"), map_location="cpu")
+        model.load_state_dict(state)
+        model.eval()
+
+        return model, scaler, meta
+    
+    def save_model_bundle(self, model, scaler, metadata: dict, base_dir="trained_models"):
+        ticker = metadata["ticker"]
+        model_version = metadata["model_version"]
+
+        out_dir = os.path.join(base_dir, ticker, model_version)
+        os.makedirs(out_dir, exist_ok=True)
+
+        # Weights
+        torch.save(model.state_dict(), os.path.join(out_dir, "weights.pt"))
+
+        # Scaler
+        joblib.dump(scaler, os.path.join(out_dir, "scaler.pkl"))
+
+        # Metadata
+        with open(os.path.join(out_dir, "metadata.json"), "w") as f:
+            json.dump(metadata, f, indent=2)
     
         
 def get_model_service(session: Session = Depends(get_session)) -> ModelService:

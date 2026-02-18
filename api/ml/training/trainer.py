@@ -2,6 +2,7 @@ import torch
 from torch.optim import Adam
 import torch.nn as nn
 from torch.utils.data import DataLoader
+from datetime import datetime, timezone
 
 import numpy as np
 
@@ -69,3 +70,27 @@ def train_model(
 
     return model, best_val_loss
 
+def generate_metadata(ticker: str, model: LSTMRegressor, lookback: int, metrics):
+    # Generate Metadata (for saving)
+    model_version = make_model_version(ticker)
+
+    metadata = {
+        "ticker": ticker,
+        "model_version": model_version,
+        "model_type": "lstm_regressor",
+        "model_params": {
+            "input_size": 1,
+            "hidden_size": model.lstm.hidden_size,
+            "num_layers": model.lstm.num_layers,
+            "dropout": model.lstm.dropout,
+        },
+        "lookback": lookback,
+        "horizon": 1,
+        "features": ["close"],
+        "metrics": metrics,
+    }
+    return metadata
+    
+def make_model_version(ticker: str) -> str:
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return f"{ticker}_{ts}"

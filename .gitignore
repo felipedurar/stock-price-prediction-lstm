@@ -208,3 +208,6 @@ __marimo__/
 
 # Ignore the sqlite data folder
 data/
+
+# Ignore trained Models
+trained_models/
