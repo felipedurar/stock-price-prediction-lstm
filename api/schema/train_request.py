@@ -3,4 +3,5 @@ from pydantic import BaseModel
 
 class TrainRequest(BaseModel):
     ticker: str
-    lookback: int
+    lookback: int = 60
+    horizon: int = 1

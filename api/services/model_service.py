@@ -21,8 +21,8 @@ class ModelService:
     def __init__(self, session: Session):
         self.session = session
         
-    def run_training(self, closes: np.ndarray, lookback=60):
-        X_train, y_train, X_val, y_val, scaler = prepare_data(closes, lookback=lookback, train_ratio=0.8)
+    def run_training(self, closes: np.ndarray, lookback=60, horizon=1):
+        X_train, y_train, X_val, y_val, scaler = prepare_data(closes, lookback=lookback, horizon=horizon, train_ratio=0.8)
 
         model, best_val_loss = train_model(
             X_train, y_train, X_val, y_val,
@@ -91,7 +91,8 @@ class ModelService:
         # Metadata
         with open(os.path.join(out_dir, "metadata.json"), "w") as f:
             json.dump(metadata, f, indent=2)
-    
+            
+        return out_dir  
         
 def get_model_service(session: Session = Depends(get_session)) -> ModelService:
     return ModelService(session)

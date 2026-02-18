@@ -10,7 +10,7 @@ import structlog
 
 from api.db import init_db, engine
 from api.logging_config import setup_logging
-from api.routers import data, model
+from api.routers import data, model, predict
 from api.tasks import perform_initial_reconciliation
 
 scheduler = AsyncIOScheduler(timezone="UTC")
@@ -69,6 +69,7 @@ app.add_middleware(
 
 app.include_router(data.router, prefix="/api/v1/data", tags=["Data"])
 app.include_router(model.router, prefix="/api/v1/model", tags=["Model"])
+app.include_router(predict.router, prefix="/api/v1/predict", tags=["Predict"])
 
 # --- Healthcheck ---
 @app.get("/api/v1/health", tags=["Health"], status_code=200)

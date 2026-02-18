@@ -45,6 +45,20 @@ class StockPriceService:
         closes = [float(r) if not isinstance(r, tuple) else float(r[0]) for r in rows]
 
         return np.array(closes, dtype=np.float32)
+    
+    def get_last_closes(self, ticker: str, lookback: int) -> np.ndarray:
+        stmt = (
+            select(StockPrice.close)
+            .where(StockPrice.ticker == ticker)
+            .order_by(StockPrice.date.desc())
+            .limit(lookback)
+        )
+        rows = self.session.exec(stmt).all()
+
+        closes = [float(r) if not isinstance(r, tuple) else float(r[0]) for r in rows]
+        closes = closes[::-1]  # reverse to chronological order (old -> new)
+
+        return np.array(closes, dtype=np.float32)
         
 def get_stock_price_service(session: Session = Depends(get_session)) -> StockPriceService:
     return StockPriceService(session)
