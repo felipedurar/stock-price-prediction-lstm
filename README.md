@@ -12,7 +12,7 @@ This application implements an end-to-end machine learning pipeline:
 
 ## Workflow
 Workflow for generating new predictions using the Inference API:
-![Stock Price Workflow](workflow.drawio.png)
+![Stock Price Workflow](assets/workflow.drawio.png)
 
 ## Tech Stack
 - FastAPI
