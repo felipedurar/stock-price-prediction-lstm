@@ -22,7 +22,10 @@ async def predict_stock(
         raise HTTPException(status_code=404, detail="No active model for this ticker. Train and activate one first.")
 
     # Load model bundle
-    model, scaler, meta = model_service.load_model_bundle(active_model.artifact_path)
+    model, scaler, meta = model_service.load_model_bundle(
+        ticker=active_model.ticker,
+        model_version=active_model.model_version
+    )
 
     lookback = getattr(active_model, "lookback", None) or meta.lookback
     if not lookback:

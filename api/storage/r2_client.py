@@ -15,12 +15,12 @@ s3 = boto3.client(
     region_name="auto"
 )
 
-def upload_model(local_path: str, object_name: str):
-    s3.upload_file(local_path, R2_BUCKET, object_name)
+def upload_file(local_path: str, remote_path: str):
+    s3.upload_file(local_path, R2_BUCKET, remote_path)
 
-def download_model(object_name: str, local_path: str):
+def download_file(remote_path: str, local_path: str):
     try:
-        s3.download_file(R2_BUCKET, object_name, local_path)
+        s3.download_file(R2_BUCKET, remote_path, local_path)
         return True
     except ClientError:
         return False
