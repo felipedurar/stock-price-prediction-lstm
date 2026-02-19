@@ -35,4 +35,3 @@ EXPOSE 8000
 
 # Default command (development)
 CMD ["poetry", "run", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
-#CMD ["sh", "-c", "poetry run uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
